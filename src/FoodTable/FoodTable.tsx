@@ -61,7 +61,7 @@ enum TableOrder {
 	asc = "asc"
 }
 
-const tableStyles = (theme : any) => ({
+const tableStyles = (theme: any) => ({
   root: {
     width: 'calc(100% - '+theme.spacing.unit * 6+'px)',
     margin: theme.spacing.unit * 3,
