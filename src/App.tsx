@@ -1,24 +1,43 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import { withStyles } from '@material-ui/core/styles';
-import Form from './From';
+import { withStyles, Theme } from '@material-ui/core/styles';
 import FoodTable from './FoodTable/FoodTable';
+import Form from './From';
 import bgImage from './bg-image.png';
 
-const appStyles = (theme: any) => ({
+const appStyles = (theme: Theme) => ({
   '@global body': {
     backgroundImage: `url(${bgImage})`,
     backgroundSize: '400px'
   }
 });
 
-class App extends Component {
+enum Page {
+  List,
+  Create
+}
+
+interface IState {  
+  currentPage: Page
+}
+
+class App extends Component<{}, IState> {
+  constructor(props: Readonly<{}>) {
+    super(props);
+
+    this.state = {
+      currentPage: Page.List
+    }
+  }
   render() {
-    return (
-      <FoodTable/>
-    );
+    let content: JSX.Element;
+    switch (this.state.currentPage) {
+      case Page.Create:
+        return (<Form/>);
+      default:
+        return (<FoodTable/>);
+    }
   }
 }
 
-//@ts-ignore
 export default withStyles(appStyles)(App);
