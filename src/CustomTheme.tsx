@@ -7,6 +7,6 @@ export const customTheme = createMuiTheme({
 				height: 'initial',
 				flexFlow: 'row wrap',
 			},
-		}
+		},
 	},
 });

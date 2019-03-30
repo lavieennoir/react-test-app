@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
-import { withStyles, Theme } from '@material-ui/core/styles';
+import { withStyles, WithStyles, Theme, createStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -32,10 +32,9 @@ export enum FoodItemField {
 	protein = "protein",
 }
 
-interface IProps {
+interface IProps  extends WithStyles<typeof tableStyles>{
   handleDialogOpen: () => void,
   handleItemEdit: (item :IFoodItemState) => void,
-	classes: any
 }
 
 interface IState {
@@ -54,7 +53,7 @@ enum TableOrder {
 	asc = "asc"
 }
 
-const tableStyles = (theme: Theme) => ({
+const tableStyles = (theme: Theme) => createStyles({
   root: {
     width: '100%',
     display: 'flex',
@@ -79,7 +78,7 @@ const tableStyles = (theme: Theme) => ({
   },
   rowButton: {
     textTransform: 'none',
-    justifyContent: 'start'
+    justifyContent: 'start',
   }
 });
 
@@ -320,5 +319,4 @@ class FoodTable extends Component<IProps, IState> {
   }
 }
 
-//@ts-ignore
 export default withStyles(tableStyles)(FoodTable);

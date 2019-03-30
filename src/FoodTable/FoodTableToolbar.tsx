@@ -1,7 +1,7 @@
-import React, {Component} from 'react';
+import React, {Component, ComponentType} from 'react';
 import ReactDOM from 'react-dom';
 import classNames from 'classnames';
-import { withStyles, Theme } from '@material-ui/core/styles';
+import { Theme, createStyles, withStyles, WithStyles } from '@material-ui/core/styles';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
@@ -15,25 +15,8 @@ import { fade } from '@material-ui/core/styles/colorManipulator';
 import withWidth, { isWidthUp } from '@material-ui/core/withWidth/withWidth';
 import { Breakpoint } from '@material-ui/core/styles/createBreakpoints';
 import { compose } from 'recompose';
-import toRenderProps from 'recompose/toRenderProps';
 
-//@ts-ignore
-// const WithWidth = toRenderProps(withWidth());
-
-interface IProps {
-	numSelected: number,
-	classes: any,
-	handleDeleteClick: () => void,
-	handleAddClick: () => void,
-	handleSearch: (input: string) => void,
-	width: Breakpoint
-}
-
-interface IState {
-	searchText: string
-}
-
-const toolbarStyles = (theme : Theme) => ({
+const toolbarStyles = (theme : Theme) => createStyles({
 	root: {
 	  paddingLeft: theme.spacing.unit * 3,
 	  paddingRight: theme.spacing.unit,
@@ -64,18 +47,14 @@ const toolbarStyles = (theme : Theme) => ({
     '&:hover': {
       backgroundColor: fade(theme.palette.primary.main, 0.25),
     },
+	},
+	searchUpSm: {
     marginRight: theme.spacing.unit * 3,
     marginLeft: theme.spacing.unit * 3,
 		width: '100%',
 		minWidth: '320px',
   },
 	searchXs: {
-    position: 'relative',
-    borderRadius: theme.shape.borderRadius,
-    backgroundColor: fade(theme.palette.primary.main, 0.15),
-    '&:hover': {
-      backgroundColor: fade(theme.palette.primary.main, 0.25),
-    },
     marginRight: theme.spacing.unit * 3,
     marginLeft: theme.spacing.unit * 3,
     marginBottom: theme.spacing.unit * 3,
@@ -105,6 +84,19 @@ const toolbarStyles = (theme : Theme) => ({
     },
   },
 });
+
+interface IProps extends WithStyles<typeof toolbarStyles>{
+	numSelected: number,
+	handleDeleteClick: () => void,
+	handleAddClick: () => void,
+	handleSearch: (input: string) => void,
+	width: Breakpoint
+}
+
+interface IState {
+	searchText: string
+}
+
   
 class EnhancedTableToolbar extends Component<IProps, IState> {
 	constructor(props: IProps) {
@@ -125,7 +117,7 @@ class EnhancedTableToolbar extends Component<IProps, IState> {
 		let searchElement = (<React.Fragment></React.Fragment>);
 		if(numSelected < 1){
 			searchElement = (
-				<div className={isWidthUpSm ? classes.search : classes.searchXs}>
+				<div className={classNames(classes.search, isWidthUpSm ? classes.searchUpSm : classes.searchXs)}>
 					<div className={classes.searchIcon}>
 						<SearchIcon />
 					</div>
@@ -194,6 +186,5 @@ class EnhancedTableToolbar extends Component<IProps, IState> {
 		);
 	}
 };
-
 //@ts-ignore
 export default compose(withWidth(),withStyles(toolbarStyles))(EnhancedTableToolbar);

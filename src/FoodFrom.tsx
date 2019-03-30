@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import { withStyles, Theme } from '@material-ui/core/styles';
+import { withStyles, Theme, WithStyles, createStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
@@ -10,7 +10,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import FormLabel from '@material-ui/core/FormLabel';
 import { IFoodItemState, FoodItemField } from './FoodTable/FoodTable';
 
-const styles = (theme : Theme)  => ({
+const styles = (theme : Theme)  => createStyles({
 	hidden: {
 	  display: 'none'
 	},
@@ -19,10 +19,9 @@ const styles = (theme : Theme)  => ({
 	}
 });
 	
-interface IProps {
+interface IProps extends WithStyles<typeof styles> {
 	editingItem?: IFoodItemState
 	handleDialogClose: (submitted: boolean, data?: IFoodItemState) => void,
-	classes: any
 }	
 
 interface IState {
@@ -112,10 +111,11 @@ class FoodForm extends Component<IProps, IState> {
 	}
 
 	render(){
-		const { classes } = this.props;
+		const { classes, editingItem } = this.props;
+		
 		return (
 			<React.Fragment>
-				<DialogTitle id="form-dialog-title">Add new dessert to the list</DialogTitle>
+				<DialogTitle id="form-dialog-title">{editingItem ? 'Edit selected dessert' : 'Add new dessert to the list'}</DialogTitle>
 				<DialogContent>
 					<Grid container spacing={24}>
 						<Grid item xs={12}>
@@ -229,5 +229,4 @@ class FoodForm extends Component<IProps, IState> {
 	};
 }
 
-//@ts-ignore
 export default withStyles(styles)(FoodForm);
