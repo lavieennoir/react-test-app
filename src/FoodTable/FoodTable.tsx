@@ -57,9 +57,15 @@ enum TableOrder {
 const tableStyles = (theme: Theme) => ({
   root: {
     width: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100vh',
     [theme.breakpoints.up('sm')]: {
       width: 'calc(100% - ' + theme.spacing.unit * 6 + 'px)',
       margin: theme.spacing.unit * 3,
+      display: 'block',
+      flexDirection: 'unset',
+      height: 'initial'
     },
   },
   table: {
@@ -67,6 +73,9 @@ const tableStyles = (theme: Theme) => ({
   },
   tableWrapper: {
     overflowX: 'auto',
+    [theme.breakpoints.down('sm')]: {
+      flexGrow: 1
+    },
   },
   rowButton: {
     textTransform: 'none',

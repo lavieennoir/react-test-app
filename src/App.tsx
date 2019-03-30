@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import { withStyles, Theme } from '@material-ui/core/styles';
+import { withStyles, Theme, MuiThemeProvider } from '@material-ui/core/styles';
 import FoodTable, { IFoodItemState } from './FoodTable/FoodTable';
 import FoodForm from './FoodFrom';
 import Dialog from '@material-ui/core/Dialog';
 import bgImage from './bg-image.png';
 import withMobileDialog from '@material-ui/core/withMobileDialog';
 import { compose } from 'recompose';
+import { customTheme } from './CustomTheme';
+
 
 const appStyles = (theme: Theme) => ({
   '@global body': {
@@ -59,7 +61,7 @@ class App extends Component<IProps, IState> {
   render() {
     const { fullScreen } = this.props;
     return (
-      <React.Fragment>
+      <MuiThemeProvider theme={customTheme}>
         <FoodTable 
           innerRef={this.foodTable}
           handleDialogOpen={this.handleDialogOpen}
@@ -76,7 +78,7 @@ class App extends Component<IProps, IState> {
           editingItem={this.state.editingItem}
         />
         </Dialog>
-      </React.Fragment>
+      </MuiThemeProvider>
     );
   }
 }

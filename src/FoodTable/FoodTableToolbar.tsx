@@ -78,7 +78,7 @@ const toolbarStyles = (theme : Theme) => ({
     },
     marginRight: theme.spacing.unit * 3,
     marginLeft: theme.spacing.unit * 3,
-		width: `calc(100% - ${theme.spacing.unit * 6})`,
+    marginBottom: theme.spacing.unit * 3,
   },
   searchIcon: {
     width: theme.spacing.unit * 9,
@@ -180,6 +180,7 @@ class EnhancedTableToolbar extends Component<IProps, IState> {
 							<Tooltip title="Add item" disableFocusListener={true} >
 								<IconButton 
 									aria-label="Add item"
+									color="primary"
 									onClick={ (event) => handleAddClick() }
 									>
 								<AddIcon />
