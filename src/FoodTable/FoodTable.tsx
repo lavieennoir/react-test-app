@@ -10,6 +10,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 import Paper from '@material-ui/core/Paper';
 import FoodTableToolbar from './FoodTableToolbar'
 import FoodTableHead from './FoodTableHead'
+import Button from '@material-ui/core/Button';
 
 export interface IFoodItemState {
 	id: number,
@@ -32,7 +33,8 @@ export enum FoodItemField {
 }
 
 interface IProps {
-  handleDialogOpen: () => void;
+  handleDialogOpen: () => void,
+  handleItemEdit: (item :IFoodItemState) => void,
 	classes: any
 }
 
@@ -66,6 +68,10 @@ const tableStyles = (theme: Theme) => ({
   tableWrapper: {
     overflowX: 'auto',
   },
+  rowButton: {
+    textTransform: 'none',
+    justifyContent: 'start'
+  }
 });
 
 class FoodTable extends Component<IProps, IState> {
@@ -99,15 +105,19 @@ class FoodTable extends Component<IProps, IState> {
 
   public createFoodItem(item: IFoodItemState) {
     const {data, counter} = this.state;
-    data.push({ 
-      id: counter + 1, 
-      name: item.name, 
-      calories: item.calories, 
-      fat: item.fat, 
-      carbs: item.carbs, 
-      protein: item.protein,
-      isDisplayed: true 
-    });
+    const isEdited = data.filter(i => i.id === item.id).length > 0;
+    if(isEdited) {
+      for(let i = 0; i < data.length; i++) {
+        if(data[i].id === item.id) {
+          data[i] = {...data[i], ...item};
+          break;
+        }
+      }
+    } else {
+      item.id =  counter + 1;
+      item.isDisplayed = true;
+      data.push(item);
+    }
 
     this.setState(state => ({ 
       counter: state.counter + 1,
@@ -267,7 +277,9 @@ class FoodTable extends Component<IProps, IState> {
                         <Checkbox checked={isSelected} />
                       </TableCell>
                       <TableCell component="th" scope="row" padding="none">
-                        {n.name}
+                        <Button color="primary" onClick={event => {this.props.handleItemEdit(n); event.stopPropagation();}} className={classes.rowButton}>
+                          {n.name}
+                        </Button>
                       </TableCell>
                       <TableCell align="right">{n.calories}</TableCell>
                       <TableCell align="right">{n.fat}</TableCell>

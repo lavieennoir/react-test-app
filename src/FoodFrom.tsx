@@ -20,6 +20,7 @@ const styles = (theme : Theme)  => ({
 });
 	
 interface IProps {
+	editingItem?: IFoodItemState
 	handleDialogClose: (submitted: boolean, data?: IFoodItemState) => void,
 	classes: any
 }	
@@ -36,23 +37,48 @@ interface IState {
 class FoodForm extends Component<IProps, IState> {
 	constructor(props: IProps) {
 		super(props);
-		this.state = {
-			name: null,
-			calories: null,
-			fat: null,
-			carbs: null,
-			protein: null,
-			hasError: []
-		};
+		const { editingItem } = props;
+		if(editingItem) {
+			this.state = {
+				name: editingItem.name,
+				calories: editingItem.calories,
+				fat: editingItem.fat,
+				carbs: editingItem.carbs,
+				protein: editingItem.protein,
+				hasError: []
+			};
+		} else {
+			this.state = {
+				name: null,
+				calories: null,
+				fat: null,
+				carbs: null,
+				protein: null,
+				hasError: []
+			};
+		}
+	}
+
+	validate = (value: string, field: FoodItemField) => {
+		if(field === FoodItemField.name) {
+			return value ? true : false;
+		} else {
+			const numValue = Number(value);
+			return value !== "" && !isNaN(numValue) && numValue >= 0 ? true : false;
+		}
+
+		return true;
 	}
 
 	handleChange = (name: FoodItemField) => (event: React.ChangeEvent<HTMLInputElement>) => {
 		const newValue = event.target.value;
 		const { hasError } = this.state;
 		const hasErrorIdx = hasError.indexOf(name);
-		if(newValue && hasErrorIdx !== -1) {
+		const isValid = this.validate(newValue, name);
+
+		if(isValid && hasErrorIdx !== -1) {
 			hasError.splice(hasErrorIdx, 1);
-		} else if(!newValue && hasErrorIdx === -1){
+		} else if(!isValid && hasErrorIdx === -1){
 			hasError.push(name);
 		}
 		//@ts-ignore
@@ -69,13 +95,14 @@ class FoodForm extends Component<IProps, IState> {
 	isValid = () => {
 		const { name, calories, fat, carbs, protein } = this.state;
 		const allFieldsInitialized = [name, calories, fat, carbs, protein].indexOf(null) === -1;
-		return this.state.hasError.length === 0 && allFieldsInitialized;
+		return allFieldsInitialized && this.state.hasError.length === 0;
 	}
 
 	getFoodItemState = () => {
 		const { name, calories, fat, carbs, protein } = this.state;
+		const { editingItem } = this.props;
 		return {
-			id: -1, 
+			id: editingItem ? editingItem.id : -1, 
 			name: name === null ? '' : name, 
 			calories: calories === null ? 0 : calories, 
 			fat: fat === null ? 0 : fat, 
@@ -107,7 +134,7 @@ class FoodForm extends Component<IProps, IState> {
 								className={this.hasError(FoodItemField.name) ? classes.formLabel : classes.hidden}
 								error={this.hasError(FoodItemField.name)} 
 							>
-								Field {FoodItemField.name} is reqired!
+								Field {FoodItemField.name} is not valid!!
 							</FormLabel>
 						</Grid>
 						<Grid item xs={12} sm={6}>
@@ -125,7 +152,7 @@ class FoodForm extends Component<IProps, IState> {
 								className={this.hasError(FoodItemField.calories) ? classes.formLabel : classes.hidden}
 								error={this.hasError(FoodItemField.calories)} 
 							>
-								Field {FoodItemField.calories} is reqired!
+								Field {FoodItemField.calories} is not valid!!
 							</FormLabel>
 						</Grid>
 						<Grid item xs={12} sm={6}>
@@ -143,7 +170,7 @@ class FoodForm extends Component<IProps, IState> {
 								className={this.hasError(FoodItemField.fat) ? classes.formLabel : classes.hidden}
 								error={this.hasError(FoodItemField.fat)} 
 							>
-								Field {FoodItemField.fat} is reqired!
+								Field {FoodItemField.fat} is not valid!!
 							</FormLabel>
 						</Grid>
 						<Grid item xs={12} sm={6}>
@@ -161,7 +188,7 @@ class FoodForm extends Component<IProps, IState> {
 								className={this.hasError(FoodItemField.carbs) ? classes.formLabel : classes.hidden}
 								error={this.hasError(FoodItemField.carbs)} 
 							>
-								Field {FoodItemField.carbs} is reqired!
+								Field {FoodItemField.carbs} is not valid!!
 							</FormLabel>
 						</Grid>
 						<Grid item xs={12} sm={6}>
@@ -180,7 +207,7 @@ class FoodForm extends Component<IProps, IState> {
 								className={this.hasError(FoodItemField.protein) ? classes.formLabel : classes.hidden}
 								error={this.hasError(FoodItemField.protein)} 
 							>
-								Field {FoodItemField.protein} is reqired!
+								Field {FoodItemField.protein} is not valid!!
 							</FormLabel>
 						</Grid>
 					</Grid>

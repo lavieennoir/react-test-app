@@ -17,7 +17,8 @@ const appStyles = (theme: Theme) => ({
 });
 
 interface IState {  
-  isDialogOpen: boolean
+  isDialogOpen: boolean,
+  editingItem?: IFoodItemState
 }
 interface IProps {
   fullScreen?: boolean
@@ -37,9 +38,19 @@ class App extends Component<IProps, IState> {
   handleDialogOpen = () => {
     this.setState({ isDialogOpen: true });
   };
+  
+  handleItemEdit = (item: IFoodItemState) => {
+    this.setState({
+      editingItem: item,
+      isDialogOpen: true 
+    });
+  };
 
   handleDialogClose = (submitted: boolean, newItem?: IFoodItemState) => {
-    this.setState({ isDialogOpen: false });
+    this.setState({ 
+      isDialogOpen: false,
+      editingItem: undefined,
+     });
     if(submitted && newItem && this.foodTable.current) {
       this.foodTable.current.createFoodItem(newItem);
     }
@@ -52,6 +63,7 @@ class App extends Component<IProps, IState> {
         <FoodTable 
           innerRef={this.foodTable}
           handleDialogOpen={this.handleDialogOpen}
+          handleItemEdit={this.handleItemEdit}
           />
         <Dialog
           fullScreen={fullScreen}
@@ -59,7 +71,10 @@ class App extends Component<IProps, IState> {
           onClose={event => this.handleDialogClose(false)}
           aria-labelledby="form-dialog-title"
         >
-        <FoodForm handleDialogClose={this.handleDialogClose}/>
+        <FoodForm 
+          handleDialogClose={this.handleDialogClose}
+          editingItem={this.state.editingItem}
+        />
         </Dialog>
       </React.Fragment>
     );
