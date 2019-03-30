@@ -12,7 +12,13 @@ import SearchIcon from '@material-ui/icons/Search';
 import InputBase from '@material-ui/core/InputBase';
 import { lighten } from '@material-ui/core/styles/colorManipulator';
 import { fade } from '@material-ui/core/styles/colorManipulator';
+import withWidth, { isWidthUp } from '@material-ui/core/withWidth/withWidth';
+import { Breakpoint } from '@material-ui/core/styles/createBreakpoints';
+import { compose } from 'recompose';
+import toRenderProps from 'recompose/toRenderProps';
 
+//@ts-ignore
+// const WithWidth = toRenderProps(withWidth());
 
 interface IProps {
 	numSelected: number,
@@ -20,6 +26,7 @@ interface IProps {
 	handleDeleteClick: () => void,
 	handleAddClick: () => void,
 	handleSearch: (input: string) => void,
+	width: Breakpoint
 }
 
 interface IState {
@@ -28,6 +35,7 @@ interface IState {
 
 const toolbarStyles = (theme : Theme) => ({
 	root: {
+	  paddingLeft: theme.spacing.unit * 3,
 	  paddingRight: theme.spacing.unit,
 	},
 	highlight:
@@ -56,13 +64,21 @@ const toolbarStyles = (theme : Theme) => ({
     '&:hover': {
       backgroundColor: fade(theme.palette.primary.main, 0.25),
     },
-    marginRight: theme.spacing.unit * 2,
-    marginLeft: 0,
-    width: '100%',
-    [theme.breakpoints.up('sm')]: {
-      marginLeft: theme.spacing.unit * 3,
-      width: 'auto',
+    marginRight: theme.spacing.unit * 3,
+    marginLeft: theme.spacing.unit * 3,
+		width: '100%',
+		minWidth: '320px',
+  },
+	searchXs: {
+    position: 'relative',
+    borderRadius: theme.shape.borderRadius,
+    backgroundColor: fade(theme.palette.primary.main, 0.15),
+    '&:hover': {
+      backgroundColor: fade(theme.palette.primary.main, 0.25),
     },
+    marginRight: theme.spacing.unit * 3,
+    marginLeft: theme.spacing.unit * 3,
+		width: `calc(100% - ${theme.spacing.unit * 6})`,
   },
   searchIcon: {
     width: theme.spacing.unit * 9,
@@ -104,69 +120,79 @@ class EnhancedTableToolbar extends Component<IProps, IState> {
 	}
 
 	render() {
-		const { numSelected, classes, handleDeleteClick, handleAddClick, handleSearch} = this.props;
-		
-		return (
-			<Toolbar
-			className={classNames(classes.root, {
-				[classes.highlight]: numSelected > 0,
-			})}
-			>
-				{numSelected > 0 ? (
-				<div className={classes.title}>
-					<Typography color="inherit" variant="subtitle1">
-						{numSelected} selected
-					</Typography>
+		const { numSelected, classes, handleDeleteClick, handleAddClick, width } = this.props;
+		const isWidthUpSm = isWidthUp('sm', width);
+		let searchElement = (<React.Fragment></React.Fragment>);
+		if(numSelected < 1){
+			searchElement = (
+				<div className={isWidthUpSm ? classes.search : classes.searchXs}>
+					<div className={classes.searchIcon}>
+						<SearchIcon />
+					</div>
+					<InputBase 
+						value = {this.state.searchText}
+						onChange = {this.handleLocalSearch}
+						placeholder="Search…"
+						classes={{
+							root: classes.inputRoot,
+							input: classes.inputInput,
+						}}
+					/>
 				</div>
-				) : (
-				<React.Fragment>
+			);
+		}
+
+		return (
+			<React.Fragment>
+				<Toolbar
+				className={classNames(classes.root, {
+					[classes.highlight]: numSelected > 0,
+				})}
+				>
+					{numSelected > 0 ? (
 					<div className={classes.title}>
-						<Typography variant="h6" id="tableTitle">
-							Deserts
+						<Typography color="inherit" variant="subtitle1">
+							{numSelected} selected
 						</Typography>
 					</div>
-					<div className={classes.search}>
-						<div className={classes.searchIcon}>
-							<SearchIcon />
+					) : (
+					<React.Fragment>
+						<div className={classes.title}>
+							<Typography variant="h6" id="tableTitle">
+								Desserts
+							</Typography>
 						</div>
-						<InputBase 
-							value = {this.state.searchText}
-							onChange = {this.handleLocalSearch}
-							placeholder="Search…"
-							classes={{
-								root: classes.inputRoot,
-								input: classes.inputInput,
-							}}
-						/>
+						{isWidthUpSm ? searchElement : ''}
+					</React.Fragment>
+					)}
+					<div className={classes.spacer} />
+					<div className={classes.actions}>
+						{numSelected > 0 ? (
+							<Tooltip title="Delete">
+								<IconButton 
+									aria-label="Delete"
+									onClick={ (event) => handleDeleteClick() }
+								>
+								<DeleteIcon />
+								</IconButton>
+							</Tooltip>
+						) : (
+							<Tooltip title="Add item" disableFocusListener={true} >
+								<IconButton 
+									aria-label="Add item"
+									onClick={ (event) => handleAddClick() }
+									>
+								<AddIcon />
+								</IconButton>
+							</Tooltip>
+						)}
 					</div>
-				</React.Fragment>
-				)}
-			<div className={classes.spacer} />
-			<div className={classes.actions}>
-				{numSelected > 0 ? (
-				<Tooltip title="Delete">
-					<IconButton 
-						aria-label="Delete"
-						onClick={ (event) => handleDeleteClick() }
-					>
-					<DeleteIcon />
-					</IconButton>
-				</Tooltip>
-				) : (
-				<Tooltip title="Add item">
-					<IconButton 
-						aria-label="Add item"
-						onClick={ (event) => handleAddClick() }
-						>
-					<AddIcon />
-					</IconButton>
-				</Tooltip>
-				)}
-			</div>
-			</Toolbar>
+				</Toolbar>
+				{isWidthUpSm ? '' : searchElement}
+			</React.Fragment>
 		);
 	}
 };
 
 //@ts-ignore
-export default withStyles(toolbarStyles)(EnhancedTableToolbar);
+export default compose(withWidth(),withStyles(toolbarStyles))(EnhancedTableToolbar);

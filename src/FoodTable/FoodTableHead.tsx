@@ -1,20 +1,12 @@
 import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
-import {FoodItemField} from './FoodItem';
 import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import Tooltip from '@material-ui/core/Tooltip';
 import Checkbox from '@material-ui/core/Checkbox';
-
-const rows = [
-  { id: FoodItemField.name, 		numeric: false, disablePadding: true, 	label: 'Dessert (100g serving)' },
-  { id: FoodItemField.calories, numeric: true, 	disablePadding: false, 	label: 'Calories' },
-  { id: FoodItemField.fat, 			numeric: true, 	disablePadding: false, 	label: 'Fat (g)' },
-  { id: FoodItemField.carbs, 		numeric: true, 	disablePadding: false, 	label: 'Carbs (g)' },
-  { id: FoodItemField.protein, 	numeric: true, 	disablePadding: false, 	label: 'Protein (g)' },
-];
+import { FoodItemField } from './FoodTable';
 
 interface IProps {
   numSelected: number,
@@ -26,9 +18,18 @@ interface IProps {
 }
 
 class FoodTableHead extends Component<IProps> {
+
   createSortHandler = (property : FoodItemField) => (event : React.MouseEvent<HTMLTableRowElement, MouseEvent>) => {
     this.props.onRequestSort(event, property);
   };
+
+  private readonly rows = [
+    { id: FoodItemField.name, 		numeric: false, disablePadding: true, 	label: 'Dessert (100g serving)' },
+    { id: FoodItemField.calories, numeric: true, 	disablePadding: false, 	label: 'Calories' },
+    { id: FoodItemField.fat, 			numeric: true, 	disablePadding: false, 	label: 'Fat (g)' },
+    { id: FoodItemField.carbs, 		numeric: true, 	disablePadding: false, 	label: 'Carbs (g)' },
+    { id: FoodItemField.protein, 	numeric: true, 	disablePadding: false, 	label: 'Protein (g)' },
+  ];
 
   render() {
     const { onSelectAllClick, order, orderBy, numSelected, rowCount } = this.props;
@@ -39,11 +40,11 @@ class FoodTableHead extends Component<IProps> {
           <TableCell padding="checkbox">
             <Checkbox
               indeterminate={numSelected > 0 && numSelected < rowCount}
-              checked={numSelected === rowCount}
+              checked={numSelected === rowCount && numSelected > 0}
               onChange={onSelectAllClick}
             />
           </TableCell>
-          {rows.map(
+          {this.rows.map(
             row => (
               <TableCell
                 key={row.id}

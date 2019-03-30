@@ -8,14 +8,34 @@ import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import Checkbox from '@material-ui/core/Checkbox';
 import Paper from '@material-ui/core/Paper';
-import 	{FoodItemField, IFoodItemState} from './FoodItem';
 import FoodTableToolbar from './FoodTableToolbar'
 import FoodTableHead from './FoodTableHead'
-import { promised } from 'q';
+
+export interface IFoodItemState {
+	id: number,
+	name: string,
+	calories: number,
+	fat: number,
+	carbs: number,
+	protein: number,
+	isSelected?: boolean,
+	isDisplayed?: boolean
+}
+
+export enum FoodItemField {
+	id = "id",
+	name = "name",
+	calories = "calories",
+	fat = "fat",
+	carbs = "carbs",
+	protein = "protein",
+}
 
 interface IProps {
+  handleDialogOpen: () => void;
 	classes: any
 }
+
 interface IState {
   order: TableOrder,
 	orderBy: FoodItemField,
@@ -34,8 +54,11 @@ enum TableOrder {
 
 const tableStyles = (theme: Theme) => ({
   root: {
-    width: 'calc(100% - '+theme.spacing.unit * 6+'px)',
-    margin: theme.spacing.unit * 3,
+    width: '100%',
+    [theme.breakpoints.up('sm')]: {
+      width: 'calc(100% - ' + theme.spacing.unit * 6 + 'px)',
+      margin: theme.spacing.unit * 3,
+    },
   },
   table: {
     minWidth: 1020,
@@ -48,38 +71,49 @@ const tableStyles = (theme: Theme) => ({
 class FoodTable extends Component<IProps, IState> {
   constructor(props: IProps) {
     super(props);
+    const data = [
+      { name:'Cupcake',            calories: 305, fat: 3.7,  carbs: 67, protein: 4.3,  id: 1 , isDisplayed: true},
+      { name:'Donut',              calories: 452, fat: 25.0, carbs: 51, protein: 4.9,  id: 2 , isDisplayed: true},
+      { name:'Eclair',             calories: 262, fat: 16.0, carbs: 24, protein: 6.0,  id: 3 , isDisplayed: true},
+      { name:'Frozen yoghurt',     calories: 159, fat: 6.0,  carbs: 24, protein: 4.0,  id: 4 , isDisplayed: true},
+      { name:'Gingerbread',        calories: 356, fat: 16.0, carbs: 49, protein: 3.9,  id: 5 , isDisplayed: true},
+      { name:'Honeycomb',          calories: 408, fat: 3.2,  carbs: 87, protein: 6.5,  id: 6 , isDisplayed: true},
+      { name:'Ice cream sandwich', calories: 237, fat: 9.0,  carbs: 37, protein: 4.3,  id: 7 , isDisplayed: true},
+      { name:'Jelly Bean',         calories: 375, fat: 0.0,  carbs: 94, protein: 0.0,  id: 8 , isDisplayed: true},
+      { name:'KitKat',             calories: 518, fat: 26.0, carbs: 65, protein: 7.0,  id: 9 , isDisplayed: true},
+      { name:'Lollipop',           calories: 392, fat: 0.2,  carbs: 98, protein: 0.0,  id: 10, isDisplayed: true},
+      { name:'Marshmallow',        calories: 318, fat: 0,    carbs: 81, protein: 2.0,  id: 11, isDisplayed: true},
+      { name:'Nougat',             calories: 360, fat: 19.0, carbs: 9,  protein: 37.0, id: 12, isDisplayed: true},
+      { name:'Oreo',               calories: 437, fat: 18.0, carbs: 63, protein: 4.0,  id: 13, isDisplayed: true}
+    ];
     this.state = {
       order: TableOrder.asc,
       orderBy: FoodItemField.calories,
       selected: [],
-      data: [
-        { name:'Cupcake',            calories: 305, fat: 3.7,  carbs: 67, protein: 4.3,  id: 1 , isDisplayed: true},
-        { name:'Donut',              calories: 452, fat: 25.0, carbs: 51, protein: 4.9,  id: 2 , isDisplayed: true},
-        { name:'Eclair',             calories: 262, fat: 16.0, carbs: 24, protein: 6.0,  id: 3 , isDisplayed: true},
-        { name:'Frozen yoghurt',     calories: 159, fat: 6.0,  carbs: 24, protein: 4.0,  id: 4 , isDisplayed: true},
-        { name:'Gingerbread',        calories: 356, fat: 16.0, carbs: 49, protein: 3.9,  id: 5 , isDisplayed: true},
-        { name:'Honeycomb',          calories: 408, fat: 3.2,  carbs: 87, protein: 6.5,  id: 6 , isDisplayed: true},
-        { name:'Ice cream sandwich', calories: 237, fat: 9.0,  carbs: 37, protein: 4.3,  id: 7 , isDisplayed: true},
-        { name:'Jelly Bean',         calories: 375, fat: 0.0,  carbs: 94, protein: 0.0,  id: 8 , isDisplayed: true},
-        { name:'KitKat',             calories: 518, fat: 26.0, carbs: 65, protein: 7.0,  id: 9 , isDisplayed: true},
-        { name:'Lollipop',           calories: 392, fat: 0.2,  carbs: 98, protein: 0.0,  id: 10, isDisplayed: true},
-        { name:'Marshmallow',        calories: 318, fat: 0,    carbs: 81, protein: 2.0,  id: 11, isDisplayed: true},
-        { name:'Nougat',             calories: 360, fat: 19.0, carbs: 9,  protein: 37.0, id: 12, isDisplayed: true},
-        { name:'Oreo',               calories: 437, fat: 18.0, carbs: 63, protein: 4.0,  id: 13, isDisplayed: true}
-      ],
+      data: data,
       page: 0,
       rowsPerPage: 5,
-      counter: 0,
+      counter: data.length,
     }
   }
 
-  createFoodItem = (name : string, calories : number, fat : number, carbs : number, protein : number) : IFoodItemState => {
+  public createFoodItem(item: IFoodItemState) {
+    const {data, counter} = this.state;
+    data.push({ 
+      id: counter + 1, 
+      name: item.name, 
+      calories: item.calories, 
+      fat: item.fat, 
+      carbs: item.carbs, 
+      protein: item.protein,
+      isDisplayed: true 
+    });
+
     this.setState(state => ({ 
       counter: state.counter + 1,
-      lastItemId: state.lastItemId == null ? 0 : state.lastItemId + 1
+      lastItemId: state.lastItemId == null ? 0 : state.lastItemId + 1,
+      data: data
      }));
-    const {counter} = this.state;
-    return { id: counter, name, calories, fat, carbs, protein, isDisplayed: true };
   }  
 
   deleteFoodItem = (id : number) : void => {
@@ -97,11 +131,7 @@ class FoodTable extends Component<IProps, IState> {
     const { selected } = this.state;
     selected.forEach((item) => this.deleteFoodItem(item));
     this.setState({selected: []});
-  }  
-
-  handleAddClick = () : void => {
-    //TODO: add dialog box
-  }  
+  }
   
   handleSearch = (input: string) : void => {
     let newCounter = 0;
@@ -158,7 +188,7 @@ class FoodTable extends Component<IProps, IState> {
 
   handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      this.setState(state => ({ selected: state.data.map(n => n.id) }));
+      this.setState(state => ({ selected: state.data.filter(n => n.isDisplayed === true).map(n => n.id) }));
       return;
     }
     this.setState({ selected: [] });
@@ -205,7 +235,7 @@ class FoodTable extends Component<IProps, IState> {
         <FoodTableToolbar 
           numSelected={selected.length} 
           handleDeleteClick={this.handleDeleteClick}
-          handleAddClick={this.handleAddClick}
+          handleAddClick={this.props.handleDialogOpen}
           handleSearch={this.handleSearch}
         />
         <div className={classes.tableWrapper}>
